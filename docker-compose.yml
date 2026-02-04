@@ -15,8 +15,8 @@ services:
   pipeline:
     build:
       context: .
-      target: ml
-    image: galaxy-pipeline:ml
+      target: data
+    image: galaxy-pipeline:data
     volumes:
       - ./data:/app/data
       - ./artifacts:/app/artifacts
