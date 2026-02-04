@@ -2,19 +2,24 @@
 
 services:
   ingest:
+    build:
+      context: .
+      target: data
     image: galaxy-pipeline:data
+    volumes:
+      - ./data:/app/data
+      - ./artifacts:/app/artifacts
+      - ./reports:/app/reports
+    command: ["python", "jobs/build_parquet_snapshot.py"]
+
+  pipeline:
+    build:
+      context: .
+      target: ml
+    image: galaxy-pipeline:ml
     volumes:
       - ./data:/app/data
       - ./artifacts:/app/artifacts
       - ./reports:/app/reports
     command: ["python", "jobs/download_cutouts.py"]
 
-  pipeline:
-    image: galaxy-pipeline:ml
-    depends_on:
-      - ingest
-    volumes:
-      - ./data:/app/data
-      - ./artifacts:/app/artifacts
-      - ./reports:/app/reports
-    command: ["python", "jobs/run_pipeline.py"]
