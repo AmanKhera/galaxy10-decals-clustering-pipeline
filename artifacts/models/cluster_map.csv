@@ -1,0 +1,8 @@
+cluster_id,size,dominant_label,dominant_name,purity,top3_breakdown
+0,171,4,Cigar,0.9473684210526315,Cigar:0.947; In-between Round Smooth:0.018; Barred Spiral:0.018
+1,1221,8,Edge-on (no bulge),0.9819819819819819,Edge-on (no bulge):0.982; Edge-on (with bulge):0.014; Loose Spiral:0.002
+2,1466,9,Edge-on (with bulge),0.9897680763983628,Edge-on (with bulge):0.990; Edge-on (no bulge):0.008; Loose Spiral:0.002
+3,5685,7,Loose Spiral,0.3438874230430959,Loose Spiral:0.344; Barred Spiral:0.296; Tight Spiral:0.243
+4,884,1,Merging,0.9705882352941176,Merging:0.971; Loose Spiral:0.017; In-between Round Smooth:0.005
+5,1952,2,Round Smooth,0.944672131147541,Round Smooth:0.945; Tight Spiral:0.028; In-between Round Smooth:0.010
+6,917,3,In-between Round Smooth,0.9749182115594329,In-between Round Smooth:0.975; Disturbed:0.010; Merging:0.005
