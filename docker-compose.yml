@@ -1,0 +1,20 @@
+# run docker compose up --build
+
+services:
+  ingest:
+    image: galaxy-pipeline:data
+    volumes:
+      - ./data:/app/data
+      - ./artifacts:/app/artifacts
+      - ./reports:/app/reports
+    command: ["python", "jobs/download_cutouts.py"]
+
+  pipeline:
+    image: galaxy-pipeline:ml
+    depends_on:
+      - ingest
+    volumes:
+      - ./data:/app/data
+      - ./artifacts:/app/artifacts
+      - ./reports:/app/reports
+    command: ["python", "jobs/run_pipeline.py"]
