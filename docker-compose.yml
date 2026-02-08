@@ -23,3 +23,14 @@ services:
       - ./reports:/app/reports
     command: ["python", "jobs/download_cutouts.py"]
 
+  infer:
+    build:
+      context: .
+      target: ml
+    image: galaxy-pipeline:ml
+    volumes:
+      - ./data:/app/data
+      - ./artifacts:/app/artifacts
+      - ./reports:/app/reports
+      - ./best_model:/app/best_model
+    command: ["python", "jobs/run_inference.py"]
