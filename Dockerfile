@@ -14,10 +14,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# System deps (keep minimal). Add only what you need.
+# System deps (minimal)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+
 
 ########################
 # Data-only target
@@ -27,18 +28,23 @@ FROM base AS data
 COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip && pip install -r /app/requirements.txt
 
-# Copy code
+# Copy code needed for data jobs + shared pipeline code
 COPY jobs/ /app/jobs/
-# If you have shared helpers:
-# COPY src/ /app/src/
+COPY galaxy_pipeline/ /app/galaxy_pipeline/
 
-# Default command runs ingestion stage (you can override)
+# Default (compose will override)
 CMD ["python", "jobs/download_cutouts.py"]
+
 
 ########################
 # ML target (heavy)
 ########################
 FROM base AS ml
+
+# (Optional) build tools for compiled Python packages (safe to keep)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential gcc g++ \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /app/requirements.txt
 COPY requirements-ml.txt /app/requirements-ml.txt
@@ -46,9 +52,9 @@ COPY requirements-ml.txt /app/requirements-ml.txt
 RUN pip install --upgrade pip && \
     pip install -r /app/requirements.txt -r /app/requirements-ml.txt
 
-# Copy code
+# Copy code needed for inference
 COPY jobs/ /app/jobs/
-# COPY src/ /app/src/
+COPY galaxy_pipeline/ /app/galaxy_pipeline/
 
-# Single pipeline entrypoint (full run)
-CMD ["python", "jobs/run_pipeline.py"]
+# Default (compose will override). Keep something that exists.
+CMD ["python", "-c", "print('ML image ready')"]
