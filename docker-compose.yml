@@ -33,4 +33,5 @@ services:
       - ./artifacts:/app/artifacts
       - ./reports:/app/reports
       - ./best_model:/app/best_model
-    command: ["python", "galaxy_pipeline/infer.py"]
+    command: ["python", "-m", "galaxy_pipeline.infer"]
+
