@@ -11,7 +11,7 @@ import pandas as pd
 import tensorflow as tf
 
 from .model_loader import load_classifier, build_encoder
-from .transform import load_scaler_pca, to_pca_space
+from jobs.transform import load_scaler_pca, to_pca_space
 from .knn_assign import KnnAssigner
 from .preprocess import load_image_rgb, make_batch
 
