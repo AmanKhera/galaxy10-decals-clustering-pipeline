@@ -33,4 +33,4 @@ services:
       - ./artifacts:/app/artifacts
       - ./reports:/app/reports
       - ./best_model:/app/best_model
-    command: ["python", "jobs/run_inference.py"]
+    command: ["python", "jobs/run_infer.py"]
