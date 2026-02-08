@@ -1,5 +1,6 @@
 # galaxy_pipeline/preprocess.py
 import tensorflow as tf
+import numpy as np
 
 def preprocess_uint8_batch(x_uint8: tf.Tensor, target_size: tuple[int, int]) -> tf.Tensor:
     """
@@ -23,3 +24,20 @@ def preprocess_path(path: tf.Tensor, target_size: tuple[int, int]) -> tf.Tensor:
     img = tf.clip_by_value(img, 0.0, 255.0)
     return img
 
+def load_image_rgb(path: str, target_size: tuple[int, int]) -> np.ndarray:
+    """
+    Load an image from disk and return (H,W,3) float32 in 0..255.
+    """
+    img_bytes = tf.io.read_file(path)
+    img = tf.image.decode_image(img_bytes, channels=3, expand_animations=False)  # uint8
+    img = tf.cast(img, tf.float32)
+    img = tf.image.resize(img, target_size, method="bilinear")
+    img = tf.clip_by_value(img, 0.0, 255.0)
+    return img.numpy()
+
+def make_batch(paths: list[str], target_size: tuple[int, int]) -> tf.Tensor:
+    """
+    Build a batch tensor (B,H,W,3) float32 in 0..255 from a list of file paths.
+    """
+    imgs = [preprocess_path(tf.constant(p), target_size) for p in paths]
+    return tf.stack(imgs, axis=0)
