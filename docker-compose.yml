@@ -1,4 +1,4 @@
-# run docker compose up --build
+# run: docker compose up --build
 
 services:
   ingest:
@@ -28,10 +28,29 @@ services:
       context: .
       target: ml
     image: galaxy-pipeline:ml
+
+    # ✅ GPU access (preferred)
+    gpus: all
+
+    # ✅ Fallback if your Compose doesn't support `gpus: all`
+    # (uncomment this block and remove `gpus: all` if needed)
+    # device_requests:
+    #   - driver: nvidia
+    #     count: -1
+    #     capabilities: ["gpu"]
+
+    environment:
+      # Helps TF see all GPUs + avoid grabbing all VRAM immediately
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - TF_FORCE_GPU_ALLOW_GROWTH=true
+
+      # Optional: reduce noise from TF logs
+      # - TF_CPP_MIN_LOG_LEVEL=2
+
     volumes:
       - ./data:/app/data
       - ./artifacts:/app/artifacts
       - ./reports:/app/reports
       - ./best_model:/app/best_model
     command: ["python", "-m", "galaxy_pipeline.infer"]
-
