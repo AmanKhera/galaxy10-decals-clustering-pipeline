@@ -14,6 +14,7 @@ from jobs.transform import load_scaler_pca, to_pca_space
 from .knn_assign import KnnAssigner
 from .preprocess import load_image_rgb, make_batch, preprocess_path
 from .embeddings import build_encoder_from_path
+import tensorflow as tf
 
 
 DATA_DIR = os.environ.get("DATA_DIR", "/app/data")
