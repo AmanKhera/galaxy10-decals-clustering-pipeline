@@ -10,9 +10,10 @@ from datetime import datetime
 import numpy as np
 
 from .model_loader import load_classifier, build_encoder
-from .transform import load_scaler_pca, to_pca_space
-from .knn_assign import assign_with_knn  # adjust if your function name differs
-from .embeddings import embed_images     # adjust if your function name differs
+from jobs.transform import load_scaler_pca, to_pca_space
+from .knn_assign import KnnAssigner
+from .preprocess import load_image_rgb, make_batch, preprocess_path
+from .embeddings import build_encoder_from_path
 
 
 DATA_DIR = os.environ.get("DATA_DIR", "/app/data")
@@ -56,24 +57,28 @@ def main():
         print("[infer] Nothing to do. Exiting.")
         return
 
-    # Load model + build encoder
-    print(f"[infer] Loading model: {MODEL_PATH}")
-    clf = load_classifier(MODEL_PATH)
-    encoder = build_encoder(clf)
-
-    # Load transforms + knn
-    print(f"[infer] Loading scaler+pca from: {MODELS_DIR}")
-    scaler, pca = load_scaler_pca(MODELS_DIR)
-
-    print(f"[infer] Loading kNN from: {MODELS_DIR}/knn.pkl")
-    # assign_with_knn should load knn internally OR accept a knn_path/models_dir
-    # (we pass models_dir so you can load knn.pkl inside knn_assign.py)
-    models_dir = MODELS_DIR
-
-    # Embed
+    # Build encoder + infer target size (uses your embeddings.py logic)
+    print(f"[infer] Building encoder from model: {MODEL_PATH}")
+    encoder, target_size = build_encoder_from_path(MODEL_PATH, embedding_layer_index=-2)
+    
+    # Embed JPG paths (same approach as embed_new_from_manifest)
     print("[infer] Embedding images...")
-    emb = embed_images(encoder, paths)   # expected shape (N, D)
-    emb = np.asarray(emb, dtype=np.float32)
+    M = len(paths)
+    
+    # infer embedding dim
+    d = int(
+        encoder(tf.zeros((1, *target_size, 3), dtype=tf.float32), training=False).shape[-1]
+    )
+    
+    emb = np.zeros((M, d), dtype=np.float32)
+    
+    batch_size = 48
+    for i in range(0, M, batch_size):
+        batch_paths = paths[i : i + batch_size]
+        xb = tf.stack([preprocess_path(tf.constant(p), target_size) for p in batch_paths], axis=0)
+        eb = encoder(xb, training=False).numpy().astype(np.float32)
+        emb[i : i + len(eb)] = eb
+    
     print(f"[infer] Embeddings shape: {emb.shape}")
 
     # PCA space
